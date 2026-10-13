@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learky - Học cùng nhau</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{background:#0f172a;color:#e2e8f0;min-height:100vh}
+.hidden{display:none!important}
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e3a8a,#0f172a)}
+#login-screen .box{background:#1e293b;padding:40px;border-radius:16px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#login-screen h1{font-size:42px;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+#login-screen p{color:#94a3b8;margin-bottom:24px;font-size:14px}
+#login-screen input{width:100%;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin-bottom:14px;font-size:15px}
+#login-screen button{width:100%;padding:12px;border:none;border-radius:10px;background:#3b82f6;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+#login-screen button:hover{background:#2563eb}
+#app{display:flex;min-height:100vh}
+#sidebar{width:230px;background:#1e293b;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+#sidebar .logo{font-size:26px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:14px;padding-left:8px}
+#sidebar .userbox{background:#0f172a;border-radius:10px;padding:12px;margin-bottom:10px}
+#sidebar .userbox b{color:#60a5fa}
+#sidebar .streak{font-size:14px;color:#fb923c;margin-top:4px}
+.navbtn{background:transparent;border:none;color:#cbd5e1;padding:11px 14px;border-radius:10px;text-align:left;font-size:15px;cursor:pointer;width:100%}
+.navbtn:hover{background:#334155}
+.navbtn.active{background:#3b82f6;color:#fff;font-weight:600}
+#main{flex:1;padding:24px;max-width:1100px}
+section{background:#1e293b;border-radius:16px;padding:22px;margin-bottom:20px}
+h2{color:#60a5fa;margin-bottom:14px}
+h3{color:#a78bfa;margin:16px 0 8px}
+/* ===== CHAT ZALO-STYLE ===== */
+.chatwrap{display:flex;gap:14px;min-height:540px}
+.chatlist{width:260px;flex-shrink:0;background:#0f172a;border-radius:12px;padding:12px;height:580px;overflow-y:auto}
+.conv-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:14px 4px 6px}
+.conv-label:first-child{margin-top:4px}
+.convitem{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.convitem:hover{background:#1e293b}
+.convitem.active{background:#1d4ed8;color:#fff}
+.convitem small{color:#94a3b8;font-size:11px;display:block;margin-top:2px}
+.convitem.active small{color:#bfdbfe}
+.chatmain{flex:1;display:flex;flex-direction:column;min-width:0}
+#chat-head{background:#0f172a;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#chat-head .hbtn{background:#334155;border:none;color:#e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;margin-left:4px}
+#chat-head .hbtn:hover{background:#475569}
+#member-panel .mini-panel{background:#0f172a;border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px}
+#member-panel .mrow{display:flex;justify-content:space-between;align-items:center;padding:7px 4px;border-bottom:1px solid #1e293b;gap:6px;flex-wrap:wrap}
+.role-tag{font-size:10px;background:#f59e0b;color:#000;border-radius:6px;padding:1px 7px;font-weight:700}
+.role-tag.owner{background:#ef4444;color:#fff}
+#messages{flex:1;height:390px;overflow-y:auto;background:#0f172a;border-radius:12px;padding:16px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;background:#334155;border-radius:12px;padding:10px 14px;white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.5}
+.msg .who{font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:4px}
+.msg .time{font-size:10px;color:#64748b;margin-top:4px}
+.msg.mine{background:#1d4ed8;align-self:flex-end}
+.msg.mine .who{color:#bfdbfe}
+.msg img{max-width:100%;border-radius:8px;display:block;margin-top:6px}
+.msg a{color:#93c5fd}
+.audio-msg{width:250px;max-width:100%;display:block;margin-top:6px;height:36px}
+#composer{background:#0f172a;border-radius:12px;padding:12px}
+#composer textarea{width:100%;min-height:64px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#e2e8f0;padding:10px;resize:vertical;font-size:14px}
+#composer .row{display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.btn{background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer;font-weight:600}
+.btn:hover{background:#2563eb}
+.btn2{background:#475569}
+.btn2:hover{background:#334155}
+.btn3{background:#059669}
+.btn3:hover{background:#047857}
+input[type=file]{font-size:12px;color:#94a3b8}
+input[type=range]{accent-color:#3b82f6}
+/* ===== END CHAT ===== */
+.bigtime{font-size:52px;font-weight:800;color:#60a5fa;font-variant-numeric:tabular-nums;margin:10px 0}
+.stat{display:inline-block;background:#0f172a;border-radius:10px;padding:12px 20px;margin:6px 8px 6px 0}
+.stat b{color:#fbbf24}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+th,td{border:1px solid #334155;padding:7px 10px;text-align:center}
+th{background:#0f172a;color:#60a5fa}
+.theory{background:#0f172a;border-radius:10px;padding:14px;margin:10px 0;font-size:14px;line-height:1.7}
+.theory ul{margin-left:20px}
+code,pre{background:#0f172a;border-radius:8px}
+pre{padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;color:#a5f3fc;margin:8px 0}
+.qcard{background:#0f172a;border-radius:12px;padding:18px;margin-top:14px}
+.qcard .qtext{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.opt{display:block;width:100%;text-align:left;background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:10px;padding:10px 14px;margin:8px 0;cursor:pointer;font-size:14px}
+.opt:hover{background:#334155}
+.opt.correct{background:#065f46;border-color:#10b981}
+.opt.wrong{background:#7f1d1d;border-color:#ef4444}
+.opt:disabled{cursor:default;opacity:.85}
+.exp{background:#172554;border-left:4px solid #3b82f6;border-radius:8px;padding:12px;margin-top:10px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.feedback{background:#0f172a;border-radius:12px;padding:18px;margin-top:16px;font-size:14px;line-height:1.8}
+.feedback .praise{color:#4ade80;font-weight:600}
+.feedback .fix{color:#fbbf24}
+.snipcat{background:#0f172a;border:none;color:#94a3b8;border-radius:8px;padding:8px 12px;margin:4px 4px 4px 0;cursor:pointer;font-size:13px}
+.snipcat.active{background:#3b82f6;color:#fff}
+.snipitem{margin-bottom:14px}
+.snipitem h4{color:#93c5fd;font-size:14px;margin-bottom:4px}
+@media(max-width:800px){#sidebar{width:70px}.navbtn{font-size:11px;padding:10px 6px;text-align:center}#sidebar .logo,#sidebar .userbox{display:none}#main{padding:12px}.chatlist{width:170px;height:auto;max-height:400px}.chatwrap{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login-screen">
+  <div class="box">
+    <h1>Learky</h1>
+    <p>Học cùng nhau, mỗi ngày một chuỗi 🔥</p>
+    <input type="text" id="login-name" placeholder="Nhập tên của bạn..." maxlength="30">
+    <button onclick="doLogin()">Vào học ngay</button>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <div id="sidebar">
+    <div class="logo">Learky</div>
+    <div class="userbox">
+      👋 <b id="sb-name"></b>
+      <div class="streak" id="sb-streak"></div>
+    </div>
+    <button class="navbtn active" onclick="go('chat',this)">💬 Nhắn tin</button>
+    <button class="navbtn" onclick="go('time',this)">⏱ ThờI gian học</button>
+    <button class="navbtn" onclick="go('chem',this)">🧪 Ôn Hóa</button>
+    <button class="navbtn" onclick="go('phys',this)">⚡ Ôn Lý</button>
+    <button class="navbtn" onclick="go('info',this)">💻 Ôn Tin C++</button>
+<button class="navbtn" onclick="logout()" style="margin-top:auto;color:#f87171">🚪 Đăng xuất</button>
+  </div>
+  <div id="main">
+
+  <!-- ================= CHAT ================= -->
+  <section id="sec-chat">
+    <div class="chatwrap">
+      <aside class="chatlist">
+        <button class="btn" style="width:100%" onclick="createGroup()">＋ Tạo nhóm mới</button>
+        <div id="conv-list"></div>
+      </aside>
+      <div class="chatmain">
+        <div id="chat-head"></div>
+        <div id="member-panel"></div>
+        <div id="messages"></div>
+        <div id="composer">
+          <textarea id="chat-input" placeholder="Nhắn gì đó... viết dài mấy cũng không bị tách tin nhắn nha 😎"></textarea>
+          <div class="row">
+            <input type="file" id="chat-file" accept="image/*,.pdf,.doc,.docx,.txt,.zip,.pptx,.xlsx">
+            <button class="btn btn2" id="mic-btn" onclick="toggleMic()" title="Gửi tin nhắn thoại">🎤</button>
+            <label style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:4px">🔊<input type="range" id="vol" min="0" max="1" step="0.05" oninput="setVol(this.value)"></label>
+            <button class="btn btn2" onclick="document.getElementById('chat-file').value=''">Bỏ file</button>
+            <button class="btn" onclick="sendMsg()">Gửi ➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIME -->
+  <section id="sec-time" class="hidden">
+    <h2>⏱ ThờI gian học hôm nay</h2>
+    <div class="bigtime" id="sw-display">00:00:00</div>
+    <div>
+      <button class="btn btn3" id="sw-toggle" onclick="swToggle()">▶ Bắt đầu</button>
+      <button class="btn btn2" onclick="swReset()">↺ Reset</button>
+    </div>
+    <div style="margin-top:18px">
+      <div class="stat">📅 Hôm nay đã học: <b id="today-time">0 phút</b></div>
+      <div class="stat">📊 Tổng tất cả: <b id="total-time">0 phút</b></div>
+      <div class="stat">🔥 Chuỗi đăng nhập: <b id="streak-time"></b></div>
+    </div>
+    <h3>7 ngày gần nhất</h3>
+    <table id="week-table"><tr><th>Ngày</th><th>ThờI gian học</th></tr></table>
+  </section>
+
+  <!-- CHEM -->
+  <section id="sec-chem" class="hidden">
+    <h2>🧪 Ôn tập kiến thức Hóa (lớp 8 - 9)</h2>
+    <div class="theory">
+      <h3>📋 Bảng tuần hoàn (các nguyên tố thường gặp)</h3>
+      <table id="ptable"></table>
+      <h3>💧 Bảng độ tan (tóm tắt ở 20°C)</h3>
+      <table>
+        <tr><th>Chất</th><th>Độ tan (g/100g nước)</th><th>Chất</th><th>Độ tan (g/100g nước)</th></tr>
+        <tr><td>NaCl</td><td>36</td><td>KNO₃</td><td>32</td></tr>
+        <tr><td>KCl</td><td>34</td><td>NH₄Cl</td><td>37</td></tr>
+        <tr><td>AgNO₃</td><td>222</td><td>CuSO₄</td><td>20,7</td></tr>
+        <tr><td>K₂CO₃</td><td>111</td><td>Đường saccarozơ</td><td>204</td></tr>
+<tr><td>BaSO₄</td><td>không tan</td><td>AgCl, PbSO₄</td><td>không tan</td></tr>
+        <tr><td>CaCO₃</td><td>không tan</td><td>Ca(OH)₂</td><td>tan ít</td></tr>
+      </table>
+      <p style="margin-top:8px">💡 Quy tắc nhớ nhanh: muối của Na, K, NH₄⁺ thì <b>đều tan</b>; muối nitrat thì <b>đều tan</b>; Cl⁻ chỉ <b>AgCl, PbCl₂</b> không tan; SO₄²⁻ chỉ <b>BaSO₄, PbSO₄</b> không tan; CO₃²⁻, SiO₃²⁻ chỉ Na, K, NH₄ tan; OH⁻ chỉ Na, K, Ba tan (Ca tan ít).</p>
+      <h3>🧮 Công thức tính số mol & dung dịch</h3>
+      <ul>
+        <li>Số mol: <b>n = m / M</b> &nbsp;(m: khối lượng gam, M: khối lượng mol g/mol)</li>
+        <li>Thể tích khí (đktc): <b>V = 22,4 × n</b> (lít) &nbsp;⇒&nbsp; n = V / 22,4</li>
+        <li>Số hạt: <b>N = n × 6.10²³</b></li>
+        <li>Nồng độ mol: <b>C<sub>M</sub> = n / V<sub>dd</sub></b> (mol/lít) &nbsp;⇒&nbsp; n = C<sub>M</sub> × V<sub>dd</sub></li>
+        <li>Nồng độ %: <b>C% = (m<sub>ct</sub> / m<sub>dd</sub>) × 100%</b></li>
+        <li>Mối liên hệ: <b>C<sub>M</sub> = (10 × C% × D) / M</b> (D: khối lượng riêng g/ml)</li>
+        <li>Tỉ khối khí: <b>d<sub>A/B</sub> = M<sub>A</sub> / M<sub>B</sub></b></li>
+        <li>Quy tắc bảo toàn khối lượng: <b>m<sub>phản ứng</sub> = m<sub>sản phẩm</sub></b></li>
+      </ul>
+    </div>
+    <button class="btn" onclick="startQuiz('chem')">📝 Làm bài kiểm tra Hóa (20 câu)</button>
+    <div id="quiz-chem"></div>
+  </section>
+
+  <!-- PHYS -->
+  <section id="sec-phys" class="hidden">
+    <h2>⚡ Ôn tập kiến thức Lý (thấu kính)</h2>
+    <div class="theory">
+      <h3>🔍 Công thức thấu kính</h3>
+      <ul>
+        <li>Công thức xác định vị trí ảnh: <b>1/f = 1/d + 1/d'</b> &nbsp;(f: tiêu cự, d: khoảng cách vật – TK, d': khoảng cách ảnh – TK)</li>
+        <li>Số phóng đại: <b>k = h'/h = |d'/d|</b></li>
+        <li>Thấu kính hội tụ: f &gt; 0 • Thấu kính phân kỳ: f &lt; 0 • Ảnh ảo: d' &lt; 0</li>
+      </ul>
+      <h3>📐 Cách vẽ ảnh bằng 3 tia đặc biệt (thấu kính hội tụ)</h3>
+      <ul>
+        <li>Tia <b>1</b>: Qua quang tâm O → đi <b>thẳng</b> không đổi hướng.</li>
+        <li>Tia <b>2</b>: Song song trục chính → hắt qua <b>tiêu điểm F'</b>.</li>
+        <li>Tia <b>3</b>: Qua tiêu điểm F → hắt <b>song song</b> trục chính.</li>
+        <li>Giao điểm của các tia ló (hoặc đường kéo dài) là ảnh của đỉnh vật.</li>
+      </ul>
+      <h3>🖼️ Tính chất ảnh qua thấu kính hội tụ</h3>
+      <table>
+        <tr><th>Vị trí vật</th><th>Vị trí ảnh</th><th>Tính chất ảnh</th><th>Số phóng đại k</th></tr>
+        <tr><td>d &gt; 2f (ngoài 2F)</td><td>f &lt; d' &lt; 2f</td><td>Thật, ngược, <b>nhỏ hơn</b> vật</td><td>k &lt; 1</td></tr>
+        <tr><td>d = 2f</td><td>d' = 2f</td><td>Thật, ngược, <b>bằng</b> vật</td><td>k = 1</td></tr>
+<tr><td>f &lt; d &lt; 2f</td><td>d' &gt; 2f</td><td>Thật, ngược, <b>lớn hơn</b> vật</td><td>k &gt; 1</td></tr>
+        <tr><td>d = f</td><td colspan="3">Ảnh ở <b>vô cực</b> (chùm tia ló song song)</td></tr>
+        <tr><td>d &lt; f (trong F)</td><td>|d'| trước TK</td><td>Ảo, <b>cùng chiều</b>, lớn hơn vật</td><td>k &gt; 1</td></tr>
+      </table>
+      <h3>🌫️ Thấu kính phân kỳ</h3>
+      <p>Luôn cho ảnh <b>ảo, cùng chiều, nhỏ hơn</b> vật, nằm trong tiêu cự (|d'| &lt; |f|). Dùng làm kính cận thị. Công thức vẫn: 1/f = 1/d + 1/d' với f &lt; 0.</p>
+    </div>
+    <button class="btn" onclick="startQuiz('phys')">📝 Làm bài kiểm tra Lý (20 câu)</button>
+    <div id="quiz-phys"></div>
+  </section>
+
+  <!-- INFO -->
+  <section id="sec-info" class="hidden">
+    <h2>💻 Ôn tập Tin học - C++</h2>
+    <div id="snip-cats"></div>
+    <div id="snip-list"></div>
+    <hr style="border-color:#334155;margin:20px 0">
+    <button class="btn" onclick="startQuiz('info')">📝 Làm bài tập C++ (trích đề HSG & tuyển sinh 10)</button>
+    <div id="quiz-info"></div>
+  </section>
+
+  </div>
+</div>
+<script>
+/* ================= DATA: 70 CODE SNIPPETS ================= */
+var SNIPS = [
+// Cơ bản & I/O
+{t:"Nhập 2 số, in tổng",c:"int a, b;\ncin >> a >> b;\ncout << a + b;"},
+{t:"Hoán đổi 2 số (dùng biến tạm)",c:"int a = 5, b = 7, t;\nt = a; a = b; b = t;\ncout << a << \" \" << b;"},
+{t:"Diện tích & chu vi hình tròn",c:"double r; cin >> r;\ndouble pi = 3.14159;\ncout << pi*r*r << \" \" << 2*pi*r;"},
+{t:"Giải phương trình bậc nhất ax+b=0",c:"double a, b; cin >> a >> b;\nif(a == 0)\n  if(b == 0) cout << \"Vo so nghiem\";\n  else cout << \"Vo nghiem\";\nelse cout << -b/a;"},
+{t:"Chào hỏi theo tên & tuổi",c:"string ten; int tuoi;\ngetline(cin, ten);\ncin >> tuoi;\ncout << \"Chao \" << ten << \", \" << tuoi << \" tuoi!\";"},
+{t:"Trung bình 3 số",c:"double a,b,c; cin>>a>>b>>c;\ncout << (a+b+c)/3;"},
+{t:"Đổi độ C sang độ F",c:"double c; cin >> c;\ncout << c*9/5 + 32;"},
+{t:"In bình phương số nhập vào",c:"int n; cin >> n;\ncout << 1LL*n*n;"},
+{t:"Tính hiệu & tích 2 số",c:"long long a, b; cin >> a >> b;\ncout << a-b << \"\\n\" << a*b;"},
+{t:"Chia lấy dư & chia lấy nguyên",c:"int a = 17, b = 5;\ncout << a/b << \" \" << a%b; // 3 2"},
+// If / Else
+{t:"Kiểm tra chẵn lẻ",c:"int n; cin >> n;\nif(n % 2 == 0) cout << \"Chan\";\nelse cout << \"Le\";"},
+{t:"Số lớn nhất trong 2 số",c:"int a, b; cin >> a >> b;\nif(a > b) cout << a;\nelse cout << b;"},
+{t:"Số lớn nhất trong 3 số",c:"int a,b,c; cin>>a>>b>>c;\nint mx = a;\nif(b > mx) mx = b;\nif(c > mx) mx = c;\ncout << mx;"},
+{t:"Kiểm tra năm nhuận",c:"int y; cin >> y;\nif((y%400==0) || (y%4==0 && y%100!=0))\n  cout << \"Nhuan\";\nelse cout << \"Khong nhuan\";"},
+{t:"Xếp loại học lực theo điểm",c:"double d; cin >> d;\nif(d >= 8.5) cout << \"Gioi\";\nelse if(d >= 6.5) cout << \"Kha\";\nelse if(d >= 5) cout << \"Trung binh\";\nelse cout << \"Yeu\";"},
+{t:"Số âm, dương hay bằng 0",c:"int n; cin >> n;\nif(n > 0) cout << \"Duong\";\nelse if(n < 0) cout << \"Am\";\nelse cout << \"Bang 0\";"},
+{t:"Chia hết cho 3 và 5",c:"int n; cin >> n;\nif(n%15 == 0) cout << \"Chia het cho 3 va 5\";\nelse cout << \"Khong\";"},
+{t:"Kiểm tra 3 cạnh có tạo thành tam giác",c:"int a,b,c; cin>>a>>b>>c;\nif(a>0 && b>0 && c>0 && a+b>c && a+c>b && b+c>a)\n  cout << \"La tam giac\";\nelse cout << \"Khong phai\";"},
+{t:"Tìm số dương nhỏ nhất trong 3 số",c:"int a,b,c; cin>>a>>b>>c;\nint mn = INT_MAX;\nif(a > 0 && a < mn) mn = a;\nif(b > 0 && b < mn) mn = b;\nif(c > 0 && c < mn) mn = c;\ncout << (mn == INT_MAX ? -1 : mn);"},
+{t:"Điểm thi đạt/không đạt (chuẩn 5.0)",c:"double d; cin >> d;\ncout << (d >= 5.0 ? \"Dau\" : \"Rot\");"},
+// Vòng lặp
+{t:"In các số từ 1 đến n",c:"int n; cin >> n;\nfor(int i = 1; i <= n; i++)\n  cout << i << \" \";"},
+{t:"Tổng từ 1 đến n",c:"int n; cin >> n;\nlong long s = 0;\nfor(int i = 1; i <= n; i++) s += i;\ncout << s;"},
+{t:"Tổng các số chẵn từ 1 đến n",c:"int n; cin >> n;\nlong long s = 0;\nfor(int i = 2; i <= n; i += 2) s += i;\ncout << s;"},
+{t:"Bảng cửu chương của n",c:"int n; cin >> n;\nfor(int i = 1; i <= 10; i++)\n  cout << n << \" x \" << i << \" = \" << n*i << \"\\n\";"},
+{t:"Tính n! (giai thừa)",c:"int n; cin >> n;\nlong long gt = 1;\nfor(int i = 2; i <= n; i++) gt *= i;\ncout << gt;"},
+{t:"Tính n mũ k",c:"int n, k; cin >> n >> k;\nlong long p = 1;\nfor(int i = 1; i <= k; i++) p *= n;\ncout << p;"},
+{t:"Đảo ngược số nguyên",c:"int n; cin >> n;\nint rev = 0;\nwhile(n > 0){\n  rev = rev*10 + n%10;\n  n /= 10;\n}\ncout << rev;"},
+{t:"Tổng các chữ số của n",c:"int n; cin >> n;\nint s = 0;\nwhile(n > 0){ s += n%10; n /= 10; }\ncout << s;"},
+{t:"Số hoàn hảo",c:"int n; cin >> n;\nint s = 0;\nfor(int i = 1; i < n; i++)\n  if(n % i == 0) s += i;\ncout << (s == n ? \"Hoan hao\" : \"Khong\");"},
+{t:"Kiểm tra số nguyên tố",c:"int n; cin >> n;\nbool nt = n > 1;\nfor(int i = 2; i*i <= n; i++)\n  if(n % i == 0){ nt = false; break; }\ncout << (nt ? \"Nguyen to\" : \"Khong\");"},
+{t:"Dãy Fibonacci n số đầu",c:"int n; cin >> n;\nlong long a = 0, b = 1;\nfor(int i = 1; i <= n; i++){\n  cout << a << \" \";\n  long long c = a + b; a = b; b = c;\n}"},
+{t:"Tìm UCLN (Euclid)",c:"int a, b; cin >> a >> b;\nwhile(b != 0){\n  int r = a % b; a = b; b = r;\n}\ncout << a;"},
+{t:"Tìm BCNN",c:"int a, b; cin >> a >> b;\nint m = a, n = b;\nwhile(n != 0){ int r = m % n; m = n; n = r; }\ncout << a/m*b;"},
+{t:"In tam giác sao vuông",c:"int n; cin >> n;\nfor(int i = 1; i <= n; i++){\n  for(int j = 1; j <= i; j++) cout << \"*\";\n  cout << \"\\n\";\n}"},
+{t:"Tổng bội số của 3 hoặc 5 dưới n",c:"int n; cin >> n;\nlong long s = 0;\nfor(int i = 1; i < n; i++)\n  if(i%3==0 || i%5==0) s += i;\ncout << s;"},
+// Mảng
+{t:"Nhập và in mảng",c:"int n; cin >> n;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nfor(int i = 0; i < n; i++) cout << a[i] << \" \";"},
+{t:"Tổng các phần tử mảng",c:"int n; cin >> n;\nlong long s = 0;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x; s += x;\n}\ncout << s;"},
+{t:"Giá trị lớn nhất của mảng",c:"int n; cin >> n;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nint mx = a[0];\nfor(int i = 1; i < n; i++)\n  if(a[i] > mx) mx = a[i];\ncout << mx;"},
+{t:"Giá trị nhỏ nhất của mảng",c:"int n; cin >> n;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nint mn = a[0];\nfor(int i = 1; i < n; i++)\n  if(a[i] < mn) mn = a[i];\ncout << mn;"},
+{t:"Đếm số chẵn trong mảng",c:"int n; cin >> n;\nint cnt = 0;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x;\n  if(x % 2 == 0) cnt++;\n}\ncout << cnt;"},
+{t:"Đếm số nguyên tố trong mảng",c:"int n; cin >> n;\nint cnt = 0;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x;\n  bool nt = x > 1;\n  for(int j = 2; j*j <= x; j++)\n    if(x % j == 0){ nt = false; break; }\n  if(nt) cnt++;\n}\ncout << cnt;"},
+{t:"Đảo ngược mảng",c:"int n; cin >> n;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nfor(int i = n-1; i >= 0; i--)\n  cout << a[i] << \" \";"},
+{t:"Sắp xếp mảng tăng dần (bubble sort)",c:"int n; cin >> n;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nfor(int i = 0; i < n-1; i++)\n  for(int j = 0; j < n-i-1; j++)\n    if(a[j] > a[j+1]) swap(a[j], a[j+1]);\nfor(int i = 0; i < n; i++) cout << a[i] << \" \";"},
+{t:"Tìm kiếm tuyến tính",c:"int n, k; cin >> n >> k;\nint a[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\nint pos = -1;\nfor(int i = 0; i < n; i++)\n  if(a[i] == k){ pos = i; break; }\ncout << pos;"},
+{t:"Tổng phần tử ở vị trí chẵn",c:"int n; cin >> n;\nlong long s = 0;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x;\n  if(i % 2 == 0) s += x;\n}\ncout << s;"},
+{t:"Đếm số lần xuất hiện của x",c:"int n, x, cnt = 0; cin >> n >> x;\nfor(int i = 0; i < n; i++){\n  int t; cin >> t;\n  if(t == x) cnt++;\n}\ncout << cnt;"},
+{t:"Mảng cộng dồn",c:"int n; cin >> n;\nint a[100], s[100];\nfor(int i = 0; i < n; i++) cin >> a[i];\ns[0] = a[0];\nfor(int i = 1; i < n; i++)\n  s[i] = s[i-1] + a[i];\nfor(int i = 0; i < n; i++) cout << s[i] << \" \";"},
+{t:"Tách số chẵn & lẻ",c:"int n; cin >> n;\nvector<int> chan, le;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x;\n  if(x % 2 == 0) chan.push_back(x);\n  else le.push_back(x);\n}\nfor(int x : chan) cout << x << \" \";\nfor(int x : le) cout << x << \" \";"},
+{t:"Xóa phần tử tại vị trí k",c:"int n, k; cin >> n;\nvector<int> a(n);\nfor(int i = 0; i < n; i++) cin >> a[i];\ncin >> k;\na.erase(a.begin() + k);\nfor(int x : a) cout << x << \" \";"},
+{t:"Chèn x vào đầu mảng",c:"int n, x; cin >> n;\nvector<int> a(n);\nfor(int i = 0; i < n; i++) cin >> a[i];\ncin >> x;\na.insert(a.begin(), x);\nfor(int v : a) cout << v << \" \";"},
+// Xâu
+{t:"Độ dài xâu",c:"string s; getline(cin, s);\ncout << s.size();"},
+{t:"Đảo ngược xâu",c:"string s; getline(cin, s);\nreverse(s.begin(), s.end());\ncout << s;"},
+{t:"Đếm nguyên âm",c:"string s; getline(cin, s);\nint cnt = 0;\nfor(char c : s)\n  if(string(\"ueoaiUEOAI\").find(c) != string::npos)\n    cnt++;\ncout << cnt;"},
+{t:"Đếm số từ trong câu",c:"string s; getline(cin, s);\nint cnt = 0;\nfor(int i = 0; i < (int)s.size(); i++)\n  if(s[i] != ' ' && (i == 0 || s[i-1] == ' '))\n    cnt++;\ncout << cnt;"},
+{t:"Đổi hoa ⇄ thường",c:"string s; getline(cin, s);\nfor(char &c : s)\n  if(islower(c)) c = toupper(c);\n  else if(isupper(c)) c = tolower(c);\ncout << s;"},
+{t:"Viết hoa chữ cái đầu mỗi từ",c:"string s; getline(cin, s);\nfor(int i = 0; i < (int)s.size(); i++)\n  if((i == 0 || s[i-1] == ' ') && islower(s[i]))\n    s[i] = toupper(s[i]);\ncout << s;"},
+{t:"Kiểm tra xâu đối xứng",c:"string s; getline(cin, s);\nstring r = s;\nreverse(r.begin(), r.end());\ncout << (s == r ? \"Doi xung\" : \"Khong\");"},
+{t:"Xóa khoảng trắng thừa",c:"string s; getline(cin, s);\nwhile(!s.empty() && s.front() == ' ') s.erase(s.begin());\nwhile(!s.empty() && s.back() == ' ') s.pop_back();\ncout << s;"},
+{t:"Đếm ký tự x trong xâu",c:"string s; char x;\ngetline(cin, s); cin >> x;\nint cnt = 0;\nfor(char c : s) if(c == x) cnt++;\ncout << cnt;"},
+{t:"Tìm từ dài nhất",c:"string s, w, best;\ngetline(cin, s);\nfor(char c : s){\n  if(c == ' '){ if(w.size() > best.size()) best = w; w = \"\"; }\n  else w += c;\n}\nif(w.size() > best.size()) best = w;\ncout << best;"},
+// Hàm & nâng cao
+{t:"Hàm kiểm tra số nguyên tố",c:"bool nt(int n){\n  if(n < 2) return false;\n  for(int i = 2; i*i <= n; i++)\n    if(n % i == 0) return false;\n  return true;\n}"},
+{t:"Giai thừa bằng đệ quy",c:"long long gt(int n){\n  if(n <= 1) return 1;\n  return n * gt(n-1);\n}"},
+{t:"UCLN đệ quy",c:"int ucln(int a, int b){\n  if(b == 0) return a;\n  return ucln(b, a % b);\n}"},
+{t:"Tổng chữ số bằng đệ quy",c:"int tong(int n){\n  if(n == 0) return 0;\n  return n % 10 + tong(n / 10);\n}"},
+{t:"Struct SinhVien",c:"struct SV{\n  string ten;\n  double dtb;\n};\nSV a;\ngetline(cin, a.ten);\ncin >> a.dtb;\ncout << a.ten << \": \" << a.dtb;"},
+{t:"Vector cơ bản",c:"int n; cin >> n;\nvector<int> a(n);\nfor(int i = 0; i < n; i++) cin >> a[i];\nsort(a.begin(), a.end());\nfor(int x : a) cout << x << \" \";"},
+{t:"Sort vector giảm dần",c:"vector<int> a = {3, 1, 4, 1, 5};\nsort(a.begin(), a.end(), greater<int>());\nfor(int x : a) cout << x << \" \";"},
+{t:"Pair cơ bản",c:"pair<string,int> p;\np.first = \"An\";\np.second = 9;\ncout << p.first << \" \" << p.second;"},
+{t:"Set đếm phần tử khác nhau",c:"int n; cin >> n;\nset<int> s;\nfor(int i = 0; i < n; i++){\n  int x; cin >> x; s.insert(x);\n}\ncout << s.size();"},
+{t:"Map đếm tần suất",c:"map<string,int> mp;\nint n; cin >> n;\nfor(int i = 0; i < n; i++){\n  string s; cin >> s;\n  mp[s]++;\n}\nfor(auto p : mp)\n  cout << p.first << \": \" << p.second << \"\\n\";"},
+{t:"Stack đảo ngược",c:"string s; getline(cin, s);\nstack<char> st;\nfor(char c : s) st.push(c);\nwhile(!st.empty()){\n  cout << st.top(); st.pop();\n}"},
+{t:"Đọc/ghi file cơ bản",c:"ifstream fi(\"input.txt\");\nofstream fo(\"output.txt\");\nint x; fi >> x;\nfo << x * 2;\nfi.close(); fo.close();"}
+];
+
+/* ================= QUESTIONS ================= */
+var QUIZ = {
+chem: [
+ {q:"Công thức tính số mol theo khối lượng là:",o:["n = M/m","n = m/M","n = m x M","n = M - m"],a:1,exp:"n = m/M. Ví dụ: 8 gam O₂ (M=32) → n = 8/32 = 0,25 mol."},
+ {q:"Thể tích của 0,5 mol khí ở đktc là:",o:["5,6 lít","11,2 lít","22,4 lít","2,24 lít"],a:1,exp:"V = 22,4 x n = 22,4 x 0,5 = 11,2 lít (đktc)."},
+ {q:"Khối lượng mol của H₂SO₄ là:",o:["49 g/mol","80 g/mol","98 g/mol","100 g/mol"],a:2,exp:"M(H₂SO₄) = 2x1 + 32 + 4x16 = 98 g/mol."},
+ {q:"Dung dịch có 0,2 mol chất tan trong 0,5 lít dung dịch có nồng độ mol là:",o:["0,2M","0,25M","0,4M","2,5M"],a:2,exp:"Cₘ = n/V = 0,2/0,5 = 0,4 mol/lít."},
+ {q:"Công thức hóa học của nước là:",o:["CO₂","H₂O₂","H₂O","O₂"],a:2,exp:"Nước gồm 2 nguyên tử H và 1 nguyên tử O → H₂O."},
+ {q:"Ký hiệu hóa học của nguyên tố Kali là:",o:["Ka","K","Po","Kl"],a:1,exp:"Kali: K (từ Latinh Kalium), hóa trị I, kim loại kiềm."},
+ {q:"Ký hiệu hóa học của nguyên tố Sắt là:",o:["Fe","Ir","S","Fr"],a:0,exp:"Sắt: Fe (từ Latinh Ferrum). Ir là Iridi, S là Lưu huỳnh."},
+ {q:"Nguyên tử được cấu tạo từ những loại hạt nào?",o:["Proton, electron","Proton, nơtron","Proton, nơtron, electron","Chỉ có nơtron"],a:2,exp:"Hạt nhân gồm proton và nơtron, vỏ gồm các electron chuyển động quanh hạt nhân."},
+ {q:"Trong nguyên tử, hạt mang điện tích dương là:",o:["Electron","Nơtron","Proton","Hạt α"],a:2,exp:"Proton mang điện tích +1; electron mang -1; nơtron không mang điện."},
+{q:"Theo định luật bảo toàn khối lượng, tổng khối lượng chất phản ứng thì:",o:["Lớn hơn tổng khối lượng sản phẩm","Bằng tổng khối lượng sản phẩm","Nhỏ hơn tổng khối lượng sản phẩm","Bằng 0"],a:1,exp:"m(phản ứng) = m(sản phẩm) — khối lượng không tự sinh ra hay mất đi."},
+ {q:"Chất nào sau đây TAN trong nước?",o:["AgCl","BaSO₄","NaCl","CaCO₃"],a:2,exp:"NaCl tan tốt (36g/100g nước ở 20°C). AgCl, BaSO₄, CaCO₃ đều không tan."},
+ {q:"Hợp chất CaO có tên gọi là:",o:["Canxi hiđroxit","Canxi oxit (vôi sống)","Canxi cacbonat","Canxi sunfat"],a:1,exp:"CaO = Canxi oxit, thường gọi là vôi sống. CaCO₃ là đá vôi."},
+ {q:"Khí CO₂ làm nước vôi trong (Ca(OH)₂) bị:",o:["Sủi bọt, vẫn trong","Vẫn đục","Vẩn đục (kết tủa trắng)","Chuyển màu xanh"],a:2,exp:"CO₂ + Ca(OH)₂ → CaCO₃↓ (kết tủa trắng đục) + H₂O. Đây là phản ứng nhận biết CO₂."},
+ {q:"Tính số mol của 16 gam khí O₂:",o:["0,25 mol","0,5 mol","1 mol","2 mol"],a:1,exp:"n = m/M = 16/32 = 0,5 mol (M(O₂) = 32 g/mol)."},
+ {q:"Tính khối lượng của 0,25 mol CaCO₃:",o:["25 g","50 g","100 g","200 g"],a:0,exp:"m = n x M = 0,25 x 100 = 25 g (M(CaCO₃) = 40+12+48 = 100 g/mol)."},
+ {q:"Số nguyên tử có trong 0,1 mol Fe là:",o:["6.10²²","6.10²³","3.10²³","1,2.10²³"],a:0,exp:"N = n x 6.10²³ = 0,1 x 6.10²³ = 6.10²² nguyên tử."},
+ {q:"Nồng độ % của dung dịch có 10 g muối hòa tan trong 190 g nước là:",o:["5%","10%","50%","20%"],a:0,exp:"m(dd) = 10 + 190 = 200 g → C% = 10/200 x 100 = 5%."},
+ {q:"Kim loại khi tham gia phản ứng hóa học thường:",o:["Nhường electron (tạo ion dương)","Nhận electron","Không nhường không nhận","Chỉ đổi màu"],a:0,exp:"Kim loại có 1-3 e lớp ngoài nên dễ NHƯỜNG electron → ion dương. Phi kim ngược lại nhận electron."},
+ {q:"Trong công thức hóa học, hóa trị của nguyên tử là con số biểu thị:",o:["Số nguyên tử trong phân tử","Khả năng liên kết của nguyên tử","Điện tích hạt nhân","Số electron lớp ngoài"],a:1,exp:"Hóa trị biểu thị khả năng liên kết của nguyên tử nguyên tố với nguyên tử nguyên tố khác."},
+ {q:"Đốt cháy hoàn toàn 6,4 g lưu huỳnh (S) trong oxi. Khối lượng SO₂ thu được là: (S=32, O=16)",o:["6,4 g","12,8 g","16 g","32 g"],a:1,exp:"S + O₂ → SO₂. n(S) = 6,4/32 = 0,2 mol = n(SO₂) → m = 0,2 x 64 = 12,8 g."}
+],
+phys: [
+ {q:"Công thức thấu kính là:",o:["1/f = 1/d - 1/d'","1/f = 1/d + 1/d'","f = d + d'","f = d x d'"],a:1,exp:"1/f = 1/d + 1/d'. Áp dụng cho cả hai loại thấu kính (phân kỳ thì f âm)."},
+ {q:"Vật đặt cách thấu kính hội tụ d = 30 cm, tiêu cự f = 10 cm. Ảnh cách thấu kính:",o:["10 cm","15 cm","20 cm","30 cm"],a:1,exp:"1/d' = 1/f - 1/d = 1/10 - 1/30 = 2/30 → d' = 15 cm (ảnh thật)."},
+{q:"Vật đặt cách thấu kính hội tụ d = 15 cm, tiêu cự f = 10 cm. Vị trí ảnh:",o:["d' = 15 cm","d' = 30 cm","d' = -30 cm","d' = -15 cm"],a:1,exp:"1/d' = 1/10 - 1/15 = 1/30 → d' = 30 cm. Vật nằm giữa F và 2F → ảnh thật ngoài 2F', lớn hơn vật."},
+ {q:"Vật đặt trong tiêu cự của thấu kính hội tụ (d = 5 cm, f = 10 cm). Vị trí ảnh là:",o:["d' = 10 cm","d' = -10 cm","d' = 5 cm","d' = 20 cm"],a:1,exp:"1/d' = 1/10 - 1/5 = -1/10 → d' = -10 cm < 0: ảnh ảo, cùng chiều, lớn gấp 2 lần vật."},
+ {q:"Khi vật đặt ngoài 2F của thấu kính hội tụ, ảnh thu được là ảnh:",o:["Thật, ngược, nhỏ hơn vật","Thật, ngược, lớn hơn vật","Ảo, cùng chiều, lớn hơn vật","Thật, cùng chiều, bằng vật"],a:0,exp:"d > 2f → ảnh thật, ngược, NHỎ HƠN vật, nằm giữa F' và 2F' (như máy ảnh)."},
+ {q:"Khi vật đặt đúng tại 2F (d = 2f), ảnh có tính chất:",o:["Thật, ngược, bằng vật","Thật, ngược, lớn hơn vật","Ảo, cùng chiều","Ảnh ở vô cực"],a:0,exp:"d = 2f → d' = 2f, k = 1: ảnh thật, ngược, BẰNG vật."},
+ {q:"Khi vật đặt giữa F và 2F của thấu kính hội tụ, ảnh thu được là:",o:["Thật, ngược, lớn hơn vật","Thật, ngược, nhỏ hơn vật","Ảo, cùng chiều","Không tạo ảnh"],a:0,exp:"f < d < 2f → ảnh thật, ngược, LỚN HƠN vật, nằm ngoài 2F' (như máy chiếu)."},
+ {q:"Tia sáng đi qua quang tâm O của thấu kính sẽ:",o:["Hắt qua tiêu điểm F'","Bị lệch 90°","Đi thẳng không đổi hướng","Phản xạ lại"],a:2,exp:"Tia qua quang tâm O đi THẲNG không đổi hướng (vì hai mặt thấu kính song song tại đó)."},
+ {q:"Tia tới song song với trục chính của thấu kính hội tụ sẽ:",o:["Đi thẳng","Hắt qua tiêu điểm F'","Hắt sao cho đường kéo dài qua F","Bị hấp thụ"],a:1,exp:"Đây là tia đặc biệt số 2: tia song song trục chính → hắt QUA tiêu điểm F'."},
+ {q:"Thấu kính phân kỳ luôn cho ảnh:",o:["Thật, ngược, nhỏ hơn vật","Ảo, cùng chiều, nhỏ hơn vật","Thật, cùng chiều","Ảo, ngược, lớn hơn vật"],a:1,exp:"Phân kỳ luôn cho ảnh ẢO, CÙNG CHIỀU, NHỎ HƠN vật và luôn nằm trong khoảng tiêu cự."},
+ {q:"Thấu kính phân kỳ có tiêu cự f = -10 cm, vật đặt cách d = 20 cm. Vị trí ảnh:",o:["d' = 20 cm","d' = -20 cm","d' = -6,7 cm","d' = 6,7 cm"],a:2,exp:"1/d' = 1/f - 1/d = -1/10 - 1/20 = -3/20 → d' = -20/3 ≈ -6,7 cm (ảnh ảo, trong tiêu cự)."},
+ {q:"Vật đặt cách thấu kính hội tụ d = 30 cm, thu được ảnh tại d' = 15 cm. Số phóng đại k là:",o:["0,5","2","3","1,5"],a:0,exp:"k = |d'/d| = 15/30 = 0,5 → ảnh nhỏ hơn vật một nửa."},
+ {q:"Thấu kính phân kỳ có f âm vì:",o:["Nó không hội tụ ánh sáng","Tiêu điểm ảo nằm trước thấu kính","Nó làm tia ló phân kỳ nên ảnh luôn thật","Nhỏ hơn thấu kính hội tụ"],a:1,exp:"Tia ló phân kỳ, đường kéo dài của chúng gặp nhau ở tiêu điểm ảo nằm TRƯỚC thấu kính → f < 0."},
+{q:"Ảnh ảo tạo bởi thấu kính luôn:",o:["Ngược chiều với vật","Cùng chiều với vật","To hơn vật","Nằm sau thấu kính"],a:1,exp:"Ảnh ảo luôn CÙNG CHIỀU với vật và quan sát được qua thấu kính (d' < 0)."},
+ {q:"Vật đặt đúng tại tiêu điểm F của thấu kính hội tụ (d = f) thì:",o:["Ảnh thật ngược, d' = 2f","Ảnh ảo cùng chiều, d' = -f","Chùm tia ló song song - ảnh ở vô cực","Ảnh trùng với vật"],a:2,exp:"d = f → 1/d' = 0 → d' = ∞. Ta nói ảnh ở VÔ CỰC, chùm tia ló song song trục chính."},
+ {q:"Vật đặt trong tiêu cự của thấu kính hội tụ được dùng trong dụng cụ nào?",o:["Máy ảnh","Kính lúp","Kính cận","Máy chiếu"],a:1,exp:"Kính lúp: đặt vật trong f của thấu kính hội tụ có f ngắn → ảnh ảo, cùng chiều, lớn hơn."},
+ {q:"Máy ảnh dùng thấu kính hội tụ, khi chụp ảnh vật phải đặt:",o:["Trong khoảng tiêu cự f","Ngoài 2F","Giữa F và 2F","Đúng tại F"],a:1,exp:"Máy ảnh: vật ngoài 2F → ảnh thật, ngược, nhỏ hơn vật nằm giữa F' và 2F' trên phim/cảm biến."},
+ {q:"Máy chiếu vật thể cần vật đặt:",o:["Ngoài 2F","Đúng 2F","Giữa F và 2F","Trong F"],a:2,exp:"Máy chiếu: f < d < 2f → ảnh thật, ngược, LỚN HƠN vật ngoài 2F' (nên màn hứng ảnh, kính phải đặt lộn)."},
+ {q:"Kính cận thị là loại thấu kính:",o:["Hội tụ, f ngắn","Phân kỳ, f ngắn","Hội tụ, f dài","Phẳng"],a:1,exp:"Mắt cận nhìn rõ vật gần, thấu kính PHÂN KỲ có f nhỏ làm ảnh lùi về đúng võng mạc."},
+ {q:"Vật cao 2 cm đặt cách thấu kính hội tụ d = 30 cm, f = 10 cm. Ảnh cao bao nhiêu?",o:["1 cm","1,5 cm","2 cm","3 cm"],a:0,exp:"d' = 15 cm → k = 15/30 = 0,5 → h' = k.h = 0,5 x 2 = 1 cm."}
+],
+info: [
+ {q:"Đoạn chương trình: int a=5, b=2; cout << a/b; sẽ in ra:",o:["2.5","2","3","Lỗi"],a:1,exp:"a và b đều là int nên phép chia là chia nguyên: 5/2 = 2 (phần thập phân bị cắt). Muốn 2.5 phải dùng (double)a/b."},
+ {q:"Đoạn chương trình: int x=7; if(x%2==0) cout<<\"Chan\"; else cout<<\"Le\"; in ra:",o:["Chan","Le","7","ChanLe"],a:1,exp:"7 % 2 = 1 ≠ 0 nên đi vào nhánh else → in \"Le\". Đây là dạng đề thi rất hay gặp."},
+ {q:"Cho đoạn: int s=0; for(int i=1;i<=4;i++) s+=i; cout<<s; kết quả là:",o:["4","6","10","15"],a:2,exp:"s = 1+2+3+4 = 10. Vòng lặp chạy i từ 1 đến 4, mỗi lần cộng i vào s."},
+ {q:"Đoạn: int i=5; cout<<i++<<\" \"<<i; in ra:",o:["6 6","5 6","6 5","5 5"],a:1,exp:"i++ là hậu tố: GIÁ TRỊ ĐƯỢC DÙNG trước (in 5) rồi mới tăng → lần sau i = 6."},
+ {q:"Đoạn: int i=5; cout<<++i<<\" \"<<i; in ra:",o:["5 6","6 6","6 5","5 5"],a:1,exp:"++i là tiền tố: TĂNG TRƯỚC rồi mới dùng giá trị → in 6, sau đó i vẫn là 6."},
+ {q:"Đoạn: int a[5]={3,7,2,9,1}; int mx=a[0]; for(int i=1;i<5;i++) if(a[i]>mx) mx=a[i]; cout<<mx; kết quả:",o:["3","9","1","7"],a:1,exp:"Thuật toán tìm max: lần lượt so sánh 7, 2, 9, 1 với mx. Khi gặp 9 thì mx=9 → in 9."},
+Làm web tiếp đi tú
+{q:"Đoạn: string s=\"code\"; reverse(s.begin(),s.end()); cout<<s; in ra:",o:["code","edoc","cood","Lỗi"],a:1,exp:"reverse() đảo ngược xâu: \"code\" → \"edoc\". Cần #include <bits/stdc++.h> hoặc <algorithm>."},
+ {q:"Cho: int n=123, r=0; while(n>0){ r=r*10+n%10; n/=10; } cout<<r; kết quả là:",o:["123","321","6","Lỗi vì n thay đổi"],a:1,exp:"Vòng lặp tách từng chữ số (n%10) ghép ngược: 3→32→321. Đây là thuật toán đảo số kinh điển trong đề HSG."},
+ {q:"Đoạn: int i=0; while(i<5); { i++; } cout<<i; chạy thì:",o:["In ra 5","In ra 4","Lặp vô hạn","Lỗi biên dịch"],a:2,exp:"LỖI LOGIC KINH ĐIỂN: dấu ; ngay sau while(...) tạo vòng lặp rỗng, i++ không bao giờ chạy → lặp vô hạn. Rất hay xuất hiện trong đề thi tuyển sinh 10."},
+ {q:"Đoạn: bool f=true; for(int i=2;i*i<=n;i++) if(n%i==0){ f=false; break; } kiểm tra điều gì?",o:["n có phải số chẵn","n có phải số nguyên tố","n có chia hết cho i","n có phải số hoàn hảo"],a:1,exp:"Kiểm tra n chia hết cho số nào trong [2, √n] không → thuật toán số nguyên tố tối ưu hơn chạy đến n-1. Đề HSG tin lớp 9 rất ưa dạng này."},
+ {q:"Câu lệnh nào khai báo mảng động (vector) số nguyên n phần tử?",o:["int a(n);","vector<int> a(n);","array<int,n> a;","int a[n];"],a:1,exp:"vector<int> a(n) tạo vector n phần tử 0. int a[n] là mảng tĩnh C-style (n phải là hằng). Đề tuyển sinh 10 thường hỏi phân biệt 2 loại này."},
+ {q:"Cho: for(int i=1;i<=3;i++){ for(int j=1;j<=3;j++) cout<<i*j<<\" \"; } tổng các số in ra là:",o:["18","36","45","27"],a:1,exp:"In bảng nhân 3x3: 1 2 3 / 2 4 6 / 3 6 9. Tổng = (1+2+3)x(1+2+3) = 6x6 = 36."}
+]};
+</script>
+
+<script>
+/* ================= HELPERS ================= */
+var $ = id => document.getElementById(id);
+function todayStr(){ var d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function fmt(sec){ var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"); }
+function fmtShort(sec){ var m=Math.floor(sec/60),s=sec%60; return m+" phút "+s+" giây"; }
+
+/* ================= LOGIN + STREAK ================= */
+var user = null;
+try{ user = JSON.parse(localStorage.getItem("learky_user")); }catch(e){}
+if(user && user.name){ showApp(); }
+
+function doLogin(){
+  var n = $("login-name").value.trim();
+  if(!n){ alert("Bạn nhập tên đã nha 😅"); return; }
+  var u = JSON.parse(localStorage.getItem("learky_user")||"{}");
+  var today = todayStr();
+  if(u.lastLogin !== today){
+    u.streak = (u.lastLogin === yesterdayStr()) ? (u.streak||0)+1 : 1;
+    u.lastLogin = today;
+  }
+  u.name = n;
+  localStorage.setItem("learky_user", JSON.stringify(u));
+  user = u;
+  showApp();
+}
+function yesterdayStr(){ var d=new Date(); d.setDate(d.getDate()-1);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function showApp(){
+  $("login-screen").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("sb-name").textContent = user.name;
+  $("sb-streak").textContent = "🔥 Chuỗi: "+(user.streak||1)+" ngày";
+  $("streak-time").textContent = (user.streak||1)+" ngày";
+  renderChat(); renderSnips(); renderPTable(); refreshTime();
+}
+function logout(){ location.reload(); }
+$("login-name").addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
+
+/* ================= NAV ================= */
+function go(sec, btn){
+  ["chat","time","chem","phys","info"].forEach(s=>$("sec-"+s).classList.add("hidden"));
+  $("sec-"+sec).classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+
+/* ================= CHAT ZALO-STYLE ================= */
+var CUR = null;            /* {kind:'g'|'d', id, other?} */
+var VOL = parseFloat(localStorage.getItem("learky_vol") || "1");
+var mediaRec = null, audioChunks = [], recording = false, lastMsgCount = -1;
+
+function getAccounts(){ try{ return JSON.parse(localStorage.getItem("learky_accounts"))||[]; }catch(e){ return []; } }
+function saveAccounts(a){ localStorage.setItem("learky_accounts", JSON.stringify(a)); }
+function getGroups(){ try{ return JSON.parse(localStorage.getItem("learky_groups"))||[]; }catch(e){ return []; } }
+function saveGroups(g){ localStorage.setItem("learky_groups", JSON.stringify(g)); }
+function findGroup(id){ return getGroups().find(function(g){ return g.id === id; }); }
+function updateGroup(g){ saveGroups(getGroups().map(function(x){ return x.id === g.id ? g : x; })); }
+function getMsgs(){ try{ return JSON.parse(localStorage.getItem("learky_msgs"))||{}; }catch(e){ return {}; } }
+function convMsgs(id){ return getMsgs()[id]||[]; }
+function pushMsgObj(id, msg){
+  var m = getMsgs(); (m[id] = m[id]||[]).push(msg);
+  try{ localStorage.setItem("learky_msgs", JSON.stringify(m)); return true; }
+  catch(e){ alert("Bộ nhớ trình duyệt đầy rồi (ảnh/file/audio quá nặng), thử file nhẹ hơn nha!"); return false; }
+}
+function dmId(a,b){ return "d:"+[a,b].sort().join("|"); }
+function me(){ return user.name; }
+function curConvId(){ if(!CUR) return null; return CUR.kind === "g" ? "g:"+CUR.id : CUR.id; }
+function isOwner(g){ return g.owner === me(); }
+function isMod(g){ return g.mods.indexOf(me()) >= 0 || isOwner(g); }
+
+/* Nhóm chính: ai đăng nhập cũng tự có mặt */
+function ensureMain(){
+  var acc = getAccounts();
+  if(acc.indexOf(me()) < 0){ acc.push(me()); saveAccounts(acc); }
+  var gs = getGroups();
+  var main = gs.find(function(g){ return g.isMain; });
+  if(!main){
+    main = {id:"main", name:"Nhóm chính 🌍", isMain:true, owner:me(), mods:[], members:acc.slice()};
+    gs.push(main); saveGroups(gs);
+} else if(main.members.indexOf(me()) < 0){
+    main.members.push(me()); saveGroups(gs);
+  }
+}
+
+function renderConvList(){
+  ensureMain();
+  var acc = getAccounts(), gs = getGroups(), h = "";
+  h += "<div class='conv-label'>Nhóm</div>";
+  gs.filter(function(g){ return g.members.indexOf(me()) >= 0; }).forEach(function(g){
+    var tag = g.isMain ? " 🌍" : (isOwner(g) ? " 👑" : (g.mods.indexOf(me()) >= 0 ? " 🛡" : ""));
+    h += "<div class='convitem"+(CUR && CUR.kind==="g" && CUR.id===g.id ? " active":"")+"' onclick='openConv(\"g\",\""+g.id+"\")'>"
+       + "<span>👥 "+esc(g.name)+tag+"</span>"
+       + "<span style='font-size:11px;color:#94a3b8'>"+g.members.length+" tv</span></div>";
+  });
+  h += "<div class='conv-label'>Tin nhắn riêng</div>";
+  if(acc.filter(function(n){ return n !== me(); }).length === 0)
+    h += "<div style='font-size:12px;color:#64748b;padding:6px'>Chưa có ai khác. Bạn bè đăng nhập trên máy này sẽ xuất hiện ở đây.</div>";
+  acc.filter(function(n){ return n !== me(); }).forEach(function(n){
+    var id = dmId(me(), n);
+    var last = convMsgs(id).slice(-1)[0];
+    var pre = last ? (last.type === "text" ? last.content.slice(0,20) : last.type === "audio" ? "🎤 Tin nhắn thoại" : "📎 Đã gửi file") : "Bắt đầu trò chuyện...";
+    h += "<div class='convitem"+(CUR && CUR.kind==="d" && CUR.id===id ? " active":"")+"' onclick='openConv(\"d\",\""+id+"\")'>"
+       + "<span>👤 "+esc(n)+"<small>"+esc(pre)+(last ? " • "+last.time : "")+"</small></span></div>";
+  });
+  $("conv-list").innerHTML = h;
+}
+
+function openConv(kind, id){
+  CUR = {kind:kind, id:id};
+  if(kind === "d"){
+    CUR.other = id.replace("d:","").split("|").filter(function(n){ return n !== me(); })[0] || "";
+  }
+  lastMsgCount = -1;
+  $("member-panel").innerHTML = "";
+  renderConvList(); renderHead(); renderChat();
+}
+
+function renderHead(){
+  var hd = $("chat-head");
+  if(!CUR){ hd.innerHTML = "<span style='color:#64748b'>← Chọn một nhóm hoặc ngưởi để bắt đầu chat</span>"; return; }
+  if(CUR.kind === "d"){
+    hd.innerHTML = "<div><b>👤 "+esc(CUR.other)+"</b> <span style='font-size:12px;color:#64748b'>• trò chuyện riêng tư</span></div>";
+    return;
+  }
+  var g = findGroup(CUR.id);
+  if(!g){ CUR = null; renderHead(); return; }
+  var h = "<div><b>"+esc(g.name)+"</b> <span style='font-size:12px;color:#94a3b8'>• "+g.members.length+" thành viên</span></div><div>";
+  h += "<button class='hbtn' onclick='toggleMembers()'>👥 Thành viên</button>";
+  if(isMod(g)) h += "<button class='hbtn' onclick='addMember()'>＋ Thêm TV</button>";
+  if(!g.isMain) h += "<button class='hbtn' style='color:#f87171' onclick='leaveGroup()'>🚪 Thoát nhóm</button>";
+  h += "</div>";
+  hd.innerHTML = h;
+}
+
+function toggleMembers(){
+  var p = $("member-panel");
+  if(p.innerHTML){ p.innerHTML = ""; return; }
+  var g = findGroup(CUR.id); if(!g) return;
+var h = "<div class='mini-panel'><b>👥 Thành viên ("+g.members.length+")</b>";
+  g.members.forEach(function(m){
+    var role = m === g.owner ? "<span class='role-tag owner'>Trưởng nhóm</span>"
+             : (g.mods.indexOf(m) >= 0 ? "<span class='role-tag'>Phó nhóm</span>" : "");
+    var acts = "";
+    if(isOwner(g) && m !== g.owner){
+      acts += g.mods.indexOf(m) >= 0
+        ? "<button class='hbtn' onclick='demote(\""+m+"\")'>Hủy phó</button>"
+        : "<button class='hbtn' onclick='promote(\""+m+"\")'>Gán phó</button>";
+      acts += "<button class='hbtn' style='color:#f87171' onclick='kick(\""+m+"\")'>MờI ra</button>";
+    }
+    h += "<div class='mrow'><span>👤 "+esc(m)+(m === me() ? " (Bạn)" : "")+" "+role+"</span><span>"+acts+"</span></div>";
+  });
+  if(isMod(g)) h += "<div style='margin-top:8px'><button class='hbtn' onclick='addMember()'>＋ Thêm thành viên</button></div>";
+  h += "</div>";
+  p.innerHTML = h;
+}
+function promote(n){ var g = findGroup(CUR.id); if(g.mods.indexOf(n) < 0){ g.mods.push(n); updateGroup(g); toggleMembers(); toggleMembers(); } }
+function demote(n){ var g = findGroup(CUR.id); g.mods = g.mods.filter(function(x){ return x !== n; }); updateGroup(g); toggleMembers(); toggleMembers(); }
+function kick(n){
+  if(!confirm("MờI "+n+" ra khỏi nhóm?")) return;
+  var g = findGroup(CUR.id);
+  g.members = g.members.filter(function(x){ return x !== n; });
+  g.mods = g.mods.filter(function(x){ return x !== n; });
+  updateGroup(g); renderHead(); renderConvList(); toggleMembers(); toggleMembers();
+}
+function leaveGroup(){
+  var g = findGroup(CUR.id);
+  if(g.isMain){ alert("Không thể thoát Nhóm chính nha, đây là nhóm của cả Learky đó! 😄"); return; }
+  if(!confirm("Bạn muốn thoát nhóm \""+g.name+"\"?")) return;
+  g.members = g.members.filter(function(x){ return x !== me(); });
+  g.mods = g.mods.filter(function(x){ return x !== me(); });
+  if(g.owner === me()){
+    if(g.members.length > 0){ g.owner = g.members[0]; }
+    else { saveGroups(getGroups().filter(function(x){ return x.id !== g.id; })); CUR = null; renderHead(); renderChat(); renderConvList(); return; }
+  }
+  updateGroup(g);
+  CUR = null; $("member-panel").innerHTML = "";
+  renderHead(); renderChat(); renderConvList();
+}
+function addMember(){
+  var g = findGroup(CUR.id); if(!g) return;
+  var n = prompt("Nhập tên thành viên muốn thêm vào nhóm:"); if(!n) return;
+  n = n.trim(); if(!n) return;
+  var acc = getAccounts();
+  if(acc.indexOf(n) < 0){ acc.push(n); saveAccounts(acc); }
+  if(g.members.indexOf(n) < 0){
+    g.members.push(n); updateGroup(g);
+    pushMsgObj("g:"+g.id, {user:me(), type:"text", content:"đã thêm "+n+" vào nhóm 👋", time:new Date().toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})});
+  } else alert(n+" đã có trong nhóm rồi!");
+  renderHead(); renderConvList(); renderChat();
+if($("member-panel").innerHTML) { toggleMembers(); toggleMembers(); }
+}
+function createGroup(){
+  var name = prompt("Đặt tên nhóm mới:"); if(!name || !name.trim()) return;
+  name = name.trim();
+  var inp = prompt("Thêm thành viên (nhập tên, cách nhau dấu phẩy - bỏ trống cũng được, thêm sau cũng được):") || "";
+  var acc = getAccounts();
+  var members = [me()];
+  inp.split(",").forEach(function(x){
+    x = x.trim();
+    if(x && members.indexOf(x) < 0){ members.push(x); if(acc.indexOf(x) < 0) acc.push(x); }
+  });
+  saveAccounts(acc);
+  var gs = getGroups();
+  var ng = {id:"g"+Date.now(), name:name, isMain:false, owner:me(), mods:[], members:members};
+  gs.push(ng); saveGroups(gs);
+  pushMsgObj("g:"+ng.id, {user:me(), type:"text", content:"đã tạo nhóm \""+name+"\" 🎉", time:new Date().toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})});
+  openConv("g", ng.id);
+}
+
+function renderChat(){
+  var box = $("messages"); box.innerHTML = "";
+  if(!CUR){
+    box.innerHTML = "<div style='color:#64748b;text-align:center;margin-top:120px'>Chọn một nhóm hoặc ngưởi bên trái để bắt đầu nha 👈<br><br><small>Nhóm chính 🌍 thì ai đăng nhập cũng tự vào!</small></div>";
+    return;
+  }
+  convMsgs(curConvId()).forEach(function(m){
+    var d = document.createElement("div");
+    d.className = "msg" + (m.user === me() ? " mine" : "");
+    var inner = "<div class='who'>"+esc(m.user)+"</div>";
+    if(m.type === "text") inner += esc(m.content);
+    else if(m.type === "img") inner += "<img src='"+m.content+"'>";
+    else if(m.type === "audio") inner += "🎤 Tin nhắn thoại<audio controls class='audio-msg' src='"+m.content+"'></audio>";
+    else inner += "📎 <a href='"+m.content+"' download='"+esc(m.name)+"'>Tải "+esc(m.name)+"</a>";
+    inner += "<div class='time'>"+m.time+"</div>";
+    d.innerHTML = inner; box.appendChild(d);
+  });
+  box.querySelectorAll("audio").forEach(function(a){ a.volume = VOL; });
+  box.scrollTop = box.scrollHeight;
+  lastMsgCount = convMsgs(curConvId()).length;
+}
+function refreshChatIfNew(){
+  if(!CUR) return;
+  if(convMsgs(curConvId()).length !== lastMsgCount) renderChat();
+}
+
+function sendMsg(){
+  if(!CUR){ alert("Bạn chọn nhóm hoặc ngưởi muốn nhắn trước đã nha! 👈"); return; }
+  var txt = $("chat-input").value, file = $("chat-file").files[0];
+  var time = new Date().toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"});
+  function done(msg){
+    if(pushMsgObj(curConvId(), msg)){
+      $("chat-input").value = ""; $("chat-file").value = "";
+      renderChat(); renderConvList();
+    }
+  }
+  if(file){
+    if(file.size > 4.5*1024*1024){ alert("File quá nặu (>4.5MB), chọn file nhẹ hơn nha!"); return; }
+    var r = new FileReader();
+    r.onload = function(){
+      var isImg = file.type.startsWith("image/");
+      done({user:me(), type:isImg ? "img" : "file", content:r.result, name:file.name, time:time});
+if(txt.trim()) done({user:me(), type:"text", content:txt, time:time});
+    };
+    r.readAsDataURL(file);
+  } else if(txt.trim()){
+    done({user:me(), type:"text", content:txt, time:time});
+  }
+}
+$("chat-input").addEventListener("keydown", function(e){ if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMsg(); } });
+
+/* ---- MICRO: ghi âm gửi tin nhắn thoại ---- */
+function toggleMic(){
+  var btn = $("mic-btn");
+  if(recording){ mediaRec.stop(); recording = false; btn.textContent = "🎤"; btn.style.background = ""; return; }
+  if(!CUR){ alert("Bạn chọn cuộc trò chuyện trước đã nha! 👈"); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert("Trình duyệt không hỗ trợ ghi âm nha!"); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    audioChunks = [];
+    mediaRec = new MediaRecorder(stream);
+    mediaRec.ondataavailable = function(e){ audioChunks.push(e.data); };
+    mediaRec.onstop = function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      var blob = new Blob(audioChunks, {type: mediaRec.mimeType || "audio/webm"});
+      var r = new FileReader();
+      r.onload = function(){
+        pushMsgObj(curConvId(), {user:me(), type:"audio", content:r.result, time:new Date().toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})});
+        renderChat(); renderConvList();
+      };
+      r.readAsDataURL(blob);
+    };
+    mediaRec.start();
+    recording = true; btn.textContent = "⏹"; btn.style.background = "#dc2626";
+  }).catch(function(){ alert("Không lấy được micro, bạn kiểm tra quyền truy cập micro của trình duyệt nha!"); });
+}
+/* ---- Âm lượng ---- */
+function setVol(v){
+  VOL = parseFloat(v);
+  localStorage.setItem("learky_vol", VOL);
+  document.querySelectorAll("audio").forEach(function(a){ a.volume = VOL; });
+}
+window.addEventListener("load", function(){
+  var v = $("vol"); if(v) v.value = VOL;
+  renderConvList(); renderHead(); renderChat();
+});
+/* Tự cập nhật tin mới mỗi 4 giây */
+setInterval(function(){
+  if($("sec-chat") && !$("sec-chat").classList.contains("hidden")){
+    renderConvList(); refreshChatIfNew();
+  }
+}, 4000);
+/* ================= STUDY TIMER ================= */
+var sw = {run:false, sec:0, last:0};
+function getStudy(){ try{ return JSON.parse(localStorage.getItem("learky_study"))||{}; }catch(e){ return {}; } }
+function swToggle(){
+  sw.run = !sw.run;
+  if(sw.run){ sw.last = Date.now(); $("sw-toggle").textContent = "⏸ Tạm dừng"; }
+  else{
+    var add = Math.floor((Date.now()-sw.last)/1000);
+    sw.sec += add;
+    var st = getStudy(); var t = todayStr();
+    st[t] = (st[t]||0) + add;
+    localStorage.setItem("learky_study", JSON.stringify(st));
+    $("sw-toggle").textContent = "▶ Tiếp tục";
+    refreshTime();
+  }
+}
+function swReset(){
+  if(sw.run) swToggle();
+sw.sec = 0; $("sw-display").textContent = "00:00:00";
+}
+setInterval(function(){
+  if(sw.run){
+    var show = sw.sec + Math.floor((Date.now()-sw.last)/1000);
+    $("sw-display").textContent = fmt(show);
+  }
+}, 500);
+function refreshTime(){
+  var st = getStudy(); var t = todayStr();
+  var today = st[t]||0, total = 0;
+  for(var k in st) total += st[k];
+  $("today-time").textContent = fmtShort(today);
+  $("total-time").textContent = fmtShort(total);
+  var tbl = "<tr><th>Ngày</th><th>ThờI gian học</th></tr>";
+  for(var i = 0; i < 7; i++){
+    var d = new Date(); d.setDate(d.getDate()-i);
+    var key = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    tbl += "<tr><td>"+key+"</td><td>"+fmtShort(st[key]||0)+"</td></tr>";
+  }
+  $("week-table").innerHTML = tbl;
+}
+
+/* ================= PERIODIC TABLE (Hóa) ================= */
+var ELEM = [[1,"H","Hiđro","I",1],[2,"He","Heli","",4],[3,"Li","Liti","I",7],[4,"Be","Beri","II",9],
+[5,"B","Bo","III",11],[6,"C","Cacbon","IV",12],[7,"N","Nito","III",14],[8,"O","Oxi","II",16],
+[9,"F","Flo","I",19],[10,"Ne","Neon","",20],[11,"Na","Natri","I",23],[12,"Mg","Magie","II",24],
+[13,"Al","Nhôm","III",27],[14,"Si","Silic","IV",28],[15,"P","Phốtpho","III",31],[16,"S","Lưu huỳnh","II",32],
+[17,"Cl","Clo","I",35.5],[18,"Ar","Agon","",40],[19,"K","Kali","I",39],[20,"Ca","Canxi","II",40],
+[26,"Fe","Sắt","II,III",56],[29,"Cu","Đồng","II",64],[30,"Zn","Kẽm","II",65],[47,"Ag","Bạc","I",108],
+[56,"Ba","Bari","II",137],[80,"Hg","Thủy ngân","II",201],[82,"Pb","Chì","II",207]];
+function renderPTable(){
+  var h = "<tr><th>STT</th><th>Ký hiệu</th><th>Tên</th><th>Hóa trị</th><th>M (g/mol)</th></tr>";
+  ELEM.forEach(function(e){ h += "<tr><td>"+e[0]+"</td><td><b style='color:#60a5fa'>"+e[1]+"</b></td><td>"+e[2]+"</td><td>"+e[3]+"</td><td>"+e[4]+"</td></tr>"; });
+  $("ptable").innerHTML = h;
+}
+
+/* ================= C++ SNIPPETS ================= */
+var SNIPCATS = [["Cơ bản & Nhập xuất",0,10],["If / Else",10,20],["Vòng lặp",20,35],["Mảng",35,50],["Xâu ký tự",50,60],["Hàm & Nâng cao",60,70]];
+function renderSnips(cat){
+  cat = cat||0;
+  var btns = "";
+  SNIPCATS.forEach(function(c,i){
+    btns += "<button class='snipcat"+(i===cat?" active":"")+"' onclick='renderSnips("+i+")'>"+c[0]+"</button>";
+  });
+  $("snip-cats").innerHTML = btns;
+  var h = "";
+  for(var i = SNIPCATS[cat][1]; i < SNIPCATS[cat][2]; i++){
+    h += "<div class='snipitem'><h4>"+(i+1)+". "+SNIPS[i].t+"</h4><pre>"+esc(SNIPS[i].c)+"</pre></div>";
+  }
+  $("snip-list").innerHTML = h;
+}
+
+/* ================= QUIZ ENGINE ================= */
+var QSTATE = {};
+function startQuiz(sub){
+  QSTATE[sub] = {i:0, score:0, wrong:[], qs:QUIZ[sub].slice()};
+  renderQ(sub);
+}
+function renderQ(sub){
+  var st = QSTATE[sub];
+  if(st.i >= st.qs.length){ return finishQuiz(sub); }
+  var q = st.qs[st.i];
+var h = "<div class='qcard'><div class='qtext'>Câu "+(st.i+1)+"/"+st.qs.length+": "+esc(q.q)+"</div>";
+  q.o.forEach(function(o,j){
+    h += "<button class='opt' onclick='answer(\""+sub+"\","+j+",this)'>"+String.fromCharCode(65+j)+". "+esc(o)+"</button>";
+  });
+  h += "<div id='ex-"+sub+"'></div></div>";
+  $("quiz-"+sub).innerHTML = h;
+}
+function answer(sub, j, btn){
+  var st = QSTATE[sub];
+  var q = st.qs[st.i];
+  var opts = btn.parentElement.querySelectorAll(".opt");
+  opts.forEach(function(b){ b.disabled = true; });
+  if(j === q.a){
+    btn.classList.add("correct");
+    st.score++;
+    $("ex-"+sub).innerHTML = "<div class='exp'>✅ Chính xác! "+esc(q.exp)+"</div>";
+  } else {
+    btn.classList.add("wrong");
+    opts[q.a].classList.add("correct");
+    st.score--;
+    st.wrong.push(q);
+    $("ex-"+sub).innerHTML = "<div class='exp'>❌ Sai mất rồi! Đáp án đúng là <b>"+String.fromCharCode(65+q.a)+"</b>. "+esc(q.exp)+"</div><br><button class='btn btn2' onclick='retryQ(\""+sub+"\")'>🔄 Làm lại câu này (đúng +1 điểm)</button>";
+  }
+  var nav = "<br><button class='btn' onclick='nextQ(\""+sub+"\")'>"+(st.i+1>=st.qs.length?"🏁 Xem kết quả":"➡ Câu tiếp theo")+"</button>";
+  $("ex-"+sub).innerHTML += nav + "<div style='margin-top:10px;font-size:14px'>Điểm hiện tại: <b style='color:#fbbf24'>"+st.score+"</b> / "+st.qs.length+"</div>";
+}
+function retryQ(sub){
+  var st = QSTATE[sub];
+  var q = st.qs[st.i];
+  var h = "<div class='qcard'><div class='qtext'>🔄 Làm lại câu "+(st.i+1)+": "+esc(q.q)+"</div>";
+  q.o.forEach(function(o,j){
+    h += "<button class='opt' onclick='retryAns(\""+sub+"\","+j+",this)'>"+String.fromCharCode(65+j)+". "+esc(o)+"</button>";
+  });
+  h += "<div id='ex-"+sub+"'></div></div>";
+  $("quiz-"+sub).innerHTML = h;
+}
+function retryAns(sub, j, btn){
+  var st = QSTATE[sub];
+  var q = st.qs[st.i];
+  var opts = btn.parentElement.querySelectorAll(".opt");
+  opts.forEach(function(b){ b.disabled = true; });
+  if(j === q.a){
+    btn.classList.add("correct");
+    st.score++;
+    $("ex-"+sub).innerHTML = "<div class='exp'>✅ Lần này đúng rồi! "+esc(q.exp)+"</div>";
+  } else {
+    btn.classList.add("wrong");
+    opts[q.a].classList.add("correct");
+    $("ex-"+sub).innerHTML = "<div class='exp'>❌ Vẫn sai nha, đáp án là <b>"+String.fromCharCode(65+q.a)+"</b>. "+esc(q.exp)+"</div>";
+  }
+  $("ex-"+sub).innerHTML += "<br><button class='btn' onclick='nextQ(\""+sub+"\")'>"+(st.i+1>=st.qs.length?"🏁 Xem kết quả":"➡ Câu tiếp theo")+"</button><div style='margin-top:10px;font-size:14px'>Điểm hiện tại: <b style='color:#fbbf24'>"+st.score+"</b> / "+st.qs.length+"</div>";
+}
+function nextQ(sub){ QSTATE[sub].i++; renderQ(sub); }
+function finishQuiz(sub){
+  var st = QSTATE[sub];
+  var n = user.name;
+  var h = "<div class='feedback'><h3>🏁 Kết quả bài kiểm tra</h3>";
+h += "<p>Điểm của bạn: <b style='font-size:22px;color:"+(st.score>=15?"#4ade80":st.score>=10?"#fbbf24":"#f87171")+"'>"+st.score+"</b> / "+st.qs.length+"</p>";
+  if(st.wrong.length === 0){
+    h += "<p class='praise'>🌟 Xuất sắc luôn "+esc(n)+" ơi! Làm đúng trọn vẹn cả 20 câu, không có gì phải sửa cả, giữ vững phong độ nha!</p>";
+  } else {
+    h += "<p class='praise'>Bạn đã làm rất tốt bài của mình, nhưng "+esc(n)+" nên sửa lại "+st.wrong.length+" lỗi này cho chỉnh chu hơn nha:</p>";
+    st.wrong.forEach(function(q,idx){
+      h += "<div class='exp'><b>Lỗi "+(idx+1)+":</b> "+esc(q.q)+"<br>👉 Nên ôn lại: "+esc(q.exp)+"</div>";
+    });
+    /* chỉ ra dạng bài nên ôn */
+    h += "<p class='fix' style='margin-top:12px'>📌 Gợi ý ôn tập: ";
+    if(sub==="chem") h += "ôn lại <b>công thức tính mol, nồng độ dung dịch và bảng tuần hoàn</b>; còn sai về <b>tính toán</b> thì nên cẩn thận hơn, viết công thức ra nháp trước khi tính nha "+esc(n)+"!";
+    else if(sub==="phys") h += "ôn lại <b>bảng tính chất ảnh theo từng vùng của thấu kính</b> và luyện <b>thay số vào công thức 1/f = 1/d + 1/d'</b>; còn sai về <b>tính toán</b> thì nên cẩn thận hơn nha "+esc(n)+"!";
+    else h += "ôn lại <b>thứ tự thực hiện i++ / ++i và các vòng lặp</b>; gặp đoạn code nên <b>truy tay từng dòng</b> xem biến thay đổi thế nào nha "+esc(n)+"!";
+    h += "</p>";
+  }
+  h += "<br><button class='btn' onclick='startQuiz(\""+sub+"\")'>🔄 Làm lại từ đầu</button></div>";
+  $("quiz-"+sub).innerHTML = h;
+}
+</script>
+</body>
+</html>
+Soạn
+Viết cho Nguyen Tuan Tu
